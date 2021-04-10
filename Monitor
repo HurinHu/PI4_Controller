@@ -1,0 +1,30 @@
+#!/usr/bin/python
+import pytz, datetime
+import os
+import subprocess
+import re
+import time
+
+def findThisProcess( process_name ):
+  ps = subprocess.Popen("ps -eaf | grep '"+process_name+"'", shell=True, stdout=subprocess.PIPE)
+  output = ps.stdout.read()
+  ps.stdout.close()
+  ps.wait()
+  return output
+
+# This is the function you can use
+def isThisRunning( process_name ):
+  output = findThisProcess( process_name )
+  output = str(output).split('\\n')
+  length = len(process_name)
+  for item in output[0].split('\n'):
+    if item[-1*length:] == process_name and item[-1*length-5:] != 'grep '+process_name:
+      return  True
+  return False
+
+while True:
+  if isThisRunning('python RGB_Cooling_HAT.py') == False:
+    print 'here'
+    os.system('cd /home/pi/HAT/RGB_Cooling_HAT && nohup python RGB_Cooling_HAT.py &')
+    os.system('cd /home/pi/HAT/RGB_Cooling_HAT && rm -rf nohup.out')
+  time.sleep(15)
