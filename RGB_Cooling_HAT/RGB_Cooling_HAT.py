@@ -62,16 +62,21 @@ font = ImageFont.load_default()
 # Alternatively load a TTF font.  Make sure the .ttf font file is in the same directory as the python script!
 # Some other nice fonts to try: http://www.dafont.com/bitmap.php
 # font = ImageFont.truetype('Minecraftia.ttf', 8)
-
+count = 0
+ip = ''
 def getMyExtIp():
-    ip = get('https://api.ipify.org').text
+    ip = ''
+    try:
+        ip = get('https://api.ipify.org').text
+    except:
+        pass
     return ip
 
 def setFanSpeed(speed):
     bus.write_byte_data(hat_addr, fan_reg, speed&0xff)
 
-#def setRGBEffect(effect):
-#    bus.write_byte_data(hat_addr, rgb_effect_reg, effect&0xff)
+def setRGBEffect(effect):
+    bus.write_byte_data(hat_addr, rgb_effect_reg, effect&0xff)
 
 def setRGB(num, r, g, b):
     if num >= Max_LED:
@@ -136,7 +141,15 @@ def setOLEDshow():
 
     cmd = "hostname -I | cut -d\' \' -f1"
     IP = subprocess.check_output(cmd, shell = True).decode('UTF-8').replace("\n","")
-    ip = getMyExtIp()
+    global count
+    global ip
+    if count == 0:
+        ip = getMyExtIp()
+        count += 1
+    else:
+        count += 1
+    if count > 3600:
+        count = 0
 
     # Write two lines of text.
     draw.rectangle((0,0,width,height), outline=0, fill=0)
@@ -158,50 +171,56 @@ def setOLEDshow():
     time.sleep(.1)
 
 setFanSpeed(0x00)
-#setRGBEffect(0x03)
+setRGBEffect(0x03)
+bus.write_byte_data(hat_addr,rgb_off_reg,0x00)
 
 while True:
     setOLEDshow()
-#    if g_temp >= 50:
-#        if fan_state != 1:
-#            setFanSpeed(0x01)
-#            fan_state = 1
-#    elif g_temp <= 40:
-#        if fan_state != 0:
-#            setFanSpeed(0x00)
-#            fan_state = 0
-
-    if abs(g_temp - level_temp) >= 1:
-        if g_temp <= 42:
-            level_temp = 42
-            bus.write_byte_data(hat_addr,rgb_off_reg,0x00)
+    print(g_temp)
+    if g_temp >= 50:
+        if fan_state != 1:
+            #setFanSpeed(0x02)
+            fan_state = 1
+    elif g_temp < 40:
+        if fan_state != 0:
             setFanSpeed(0x00)
-        elif g_temp >= 50 and g_temp < 53:
+            fan_state = 0
+
+    if g_temp < 50:
+        bus.write_byte_data(hat_addr,rgb_off_reg,0x00)
+            
+    if abs(g_temp - level_temp) >= 1:
+        print('here')
+        if g_temp >= 50 and g_temp < 60:
             level_temp = 50
+            setFanSpeed(0x01)
+        elif g_temp >= 60 and g_temp < 63:
+            level_temp = 60
             setRGB(Max_LED, 0x5f, 0x9e, 0xa0)
-            setFanSpeed(0x08)
-        elif g_temp >= 53 and g_temp < 55:
-            level_temp = 53
+            setFanSpeed(0x01)
+        elif g_temp >= 63 and g_temp < 65:
+            level_temp = 63
             setRGB(Max_LED, 0xff, 0xff, 0x00)
-            setFanSpeed(0x08)
-        elif g_temp >= 55 and g_temp < 57:
-            level_temp = 55
+            setFanSpeed(0x01)
+        elif g_temp >= 65 and g_temp < 67:
+            level_temp = 65
             setRGB(Max_LED, 0xff, 0xd7, 0x00)
-            setFanSpeed(0x08)
-        elif g_temp >= 57 and g_temp < 59:
-            level_temp = 57
+            setFanSpeed(0x01)
+        elif g_temp >= 67 and g_temp < 69:
+            level_temp = 67
             setRGB(Max_LED, 0xff, 0xa5, 0x00)
             setFanSpeed(0x01)
-        elif g_temp >= 59 and g_temp < 61:
-            level_temp = 59
+        elif g_temp >= 69 and g_temp < 71:
+            level_temp = 69
             setRGB(Max_LED, 0xff, 0x8c, 0x00)
             setFanSpeed(0x01)
-        elif g_temp >= 61 and g_temp < 63:
-            level_temp = 61
+        elif g_temp >= 71 and g_temp < 73:
+            level_temp = 71
             setRGB(Max_LED, 0xff, 0x45, 0x00)
             setFanSpeed(0x01)
-        elif g_temp >= 63:
-            level_temp = 63
+        elif g_temp >= 73:
+            level_temp = 73
             setRGB(Max_LED, 0xff, 0x00, 0x00)
             setFanSpeed(0x01)
     time.sleep(.5)
+		

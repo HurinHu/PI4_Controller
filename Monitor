@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import pytz, datetime
 import os
 import subprocess
@@ -22,9 +22,11 @@ def isThisRunning( process_name ):
       return  True
   return False
 
+time.sleep(30)
+
 while True:
-  if isThisRunning('python RGB_Cooling_HAT.py') == False:
-    print 'here'
-    os.system('cd /home/pi/HAT/RGB_Cooling_HAT && nohup python RGB_Cooling_HAT.py &')
-    os.system('cd /home/pi/HAT/RGB_Cooling_HAT && rm -rf nohup.out')
+  if isThisRunning('python3 RGB_Cooling_HAT.py') == False:
+    print('here')
+    os.system('cd /home/tina/HAT/RGB_Cooling_HAT && nohup python3 RGB_Cooling_HAT.py &')
+    os.system('cd /home/tina/HAT/RGB_Cooling_HAT && rm -rf nohup.out')
   time.sleep(15)
